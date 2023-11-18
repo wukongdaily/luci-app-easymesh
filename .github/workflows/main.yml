@@ -10,19 +10,19 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Set up OpenWrt Environment
+    - name: Set up LEDE Environment
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget
-        git clone https://git.openwrt.org/openwrt/openwrt.git
-        cd openwrt
+        git clone https://github.com/coolsnowwolf/lede
+        cd lede
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
     - name: Compile luci-app-easymesh
       run: |
-        cd openwrt
-        # Assuming luci-app-easymesh is in the package directory of OpenWrt
+        cd lede
+        # Assuming luci-app-easymesh is in the package directory of LEDE
         make menuconfig # Here you need to select luci-app-easymesh for compilation
         make package/luci-app-easymesh/compile V=s
 
@@ -30,4 +30,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: compiled-packages
-        path: openwrt/bin/packages
+        path: lede/bin/packages
