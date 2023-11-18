@@ -1,0 +1,33 @@
+name: Compile luci-app-easymesh
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up OpenWrt Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget
+        git clone https://git.openwrt.org/openwrt/openwrt.git
+        cd openwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Compile luci-app-easymesh
+      run: |
+        cd openwrt
+        # Assuming luci-app-easymesh is in the package directory of OpenWrt
+        make menuconfig # Here you need to select luci-app-easymesh for compilation
+        make package/luci-app-easymesh/compile V=s
+
+    - name: Archive Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: compiled-packages
+        path: openwrt/bin/packages
